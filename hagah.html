@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#ffffff"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Hagah"/>
+<title>Hagah — Méditer la Parole</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet"/>
+<script>
+const SUPABASE_URL      = "https://TON_PROJECT_ID.supabase.co";
+const SUPABASE_ANON_KEY = "TA_ANON_KEY";
+const IS_CONFIGURED     = !SUPABASE_URL.includes("TON_PROJECT");
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --v4:#4a2c8a;--mg:#c2185b;--or:#f4511e;--yw:#f59e0b;
+  --v4l:rgba(74,44,138,.09);--mgl:rgba(194,24,91,.08);
+  --white:#fff;--off:#faf9ff;--off2:#f3f0fb;
+  --gray1:#f1eef8;--gray2:#e8e3f4;--gray3:#c4b8e0;
+  --tx:#1a1035;--mt:#6b5b95;--mt2:#9d8ec4;
+  --bdr:rgba(74,44,138,.12);--bdr2:rgba(74,44,138,.22);
+  --shadow:0 2px 16px rgba(74,44,138,.1);--shadow-lg:0 8px 40px rgba(74,44,138,.15);
+  --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;touch-action:manipulation}
+body{font-family:'Nunito',sans-serif;background:var(--white);color:var(--tx);overscroll-behavior:none}
+
+/* BG */
+#bg{position:fixed;inset:0;z-index:0;background:var(--white)}
+#bg::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(ellipse 70% 40% at 100% 0%,rgba(74,44,138,.06) 0%,transparent 70%),
+  radial-gradient(ellipse 60% 35% at 0% 100%,rgba(194,24,91,.05) 0%,transparent 70%)}
+#bg::after{content:'';position:absolute;inset:0;opacity:.35;
+  background-image:radial-gradient(circle,rgba(74,44,138,.07) 1px,transparent 1px);
+  background-size:28px 28px}
+
+/* LAYOUT */
+#app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1}
+.inner{padding:20px;padding-bottom:calc(24px + var(--safe-bot));max-width:500px;margin:0 auto;width:100%}
+.inner-lg{padding:20px;padding-bottom:calc(24px + var(--safe-bot));max-width:960px;margin:0 auto;width:100%}
+.centered{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100%;padding:28px;padding-top:calc(28px + var(--safe-top))}
+
+/* CARDS */
+.card{background:var(--white);border:1.5px solid var(--bdr);border-radius:20px;box-shadow:var(--shadow)}
+.card-el{box-shadow:var(--shadow-lg);border-color:var(--bdr2)}
+.card-purple{background:linear-gradient(135deg,rgba(74,44,138,.06),rgba(194,24,91,.03));border-color:rgba(74,44,138,.14)}
+.card-gold{background:linear-gradient(135deg,rgba(245,158,11,.07),rgba(244,81,30,.04));border-color:rgba(245,158,11,.22)}
+
+/* TYPOGRAPHY */
+.script{font-family:'Dancing Script',cursive;font-weight:700}
+.logo-text{font-family:'Dancing Script',cursive;font-weight:700;
+  background:linear-gradient(135deg,#f59e0b,#f4511e,#c2185b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.label{display:block;font-size:10px;font-weight:800;letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--mt2);margin-bottom:8px}
+
+/* BUTTONS */
+.btn{font-family:'Nunito',sans-serif;font-weight:800;border:none;border-radius:14px;cursor:pointer;
+  transition:all .2s cubic-bezier(.34,1.4,.64,1);display:inline-flex;align-items:center;
+  justify-content:center;gap:8px;user-select:none;touch-action:manipulation}
+.btn:active{transform:scale(.95)!important}
+.btn:disabled{opacity:.4;pointer-events:none}
+.btn-primary{background:linear-gradient(135deg,var(--v4),var(--mg));color:#fff;
+  padding:16px 28px;font-size:15px;width:100%;box-shadow:0 4px 20px rgba(194,24,91,.25)}
+.btn-primary:hover{box-shadow:0 8px 28px rgba(194,24,91,.35)}
+.btn-ghost{background:var(--white);color:var(--tx);border:1.5px solid var(--bdr2);
+  padding:12px 20px;font-size:14px;box-shadow:0 2px 8px rgba(74,44,138,.06)}
+.btn-ghost:hover{background:var(--off);border-color:var(--v4)}
+.btn-purple{background:var(--v4l);color:var(--v4);border:1.5px solid rgba(74,44,138,.18);padding:10px 18px;font-size:13px}
+.btn-sm{padding:9px 16px;font-size:13px;border-radius:11px}
+.btn-text{background:none;border:none;color:var(--mt);font-family:'Nunito',sans-serif;
+  font-weight:700;font-size:13px;padding:8px 12px;cursor:pointer;border-radius:8px}
+.btn-text:hover{background:var(--gray1);color:var(--v4)}
+
+/* INPUTS */
+.inp{background:var(--off);border:1.5px solid var(--bdr2);border-radius:13px;
+  padding:14px 16px;color:var(--tx);font-family:'Nunito',sans-serif;
+  font-size:16px;width:100%;outline:none;appearance:none;-webkit-appearance:none;transition:all .2s}
+.inp:focus{border-color:var(--v4);background:var(--white);box-shadow:0 0 0 4px rgba(74,44,138,.1)}
+.inp::placeholder{color:var(--mt2)}
+textarea.inp{resize:none;min-height:110px;line-height:1.75}
+
+/* PROGRESS */
+.prog-track{background:var(--gray2);border-radius:99px;height:6px;overflow:hidden}
+.prog-fill{height:6px;border-radius:99px;
+  background:linear-gradient(90deg,var(--v4),var(--mg),var(--or));
+  transition:width .7s cubic-bezier(.34,1.2,.64,1)}
+.dots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gray2);transition:all .35s}
+.dot.done{background:var(--mg)}
+.dot.active{background:var(--v4);transform:scale(1.5);box-shadow:0 0 0 3px rgba(74,44,138,.2)}
+
+/* TIMER */
+.timer-wrap{position:relative;width:72px;height:72px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.timer-wrap svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.timer-num{font-family:'Dancing Script',cursive;font-size:17px;font-weight:700;color:var(--v4);line-height:1}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:5px 13px;border-radius:99px;font-size:12px;font-weight:700}
+.badge-code{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(244,81,30,.1));color:var(--or);border:1.5px solid rgba(245,158,11,.3);letter-spacing:4px;font-size:16px}
+.badge-green{background:rgba(22,163,74,.09);color:#16a34a;border:1.5px solid rgba(22,163,74,.2)}
+.badge-muted{background:var(--gray1);color:var(--mt);border:1.5px solid var(--bdr)}
+.badge-purple{background:var(--v4l);color:var(--v4);border:1.5px solid rgba(74,44,138,.15)}
+.badge-blue{background:rgba(59,130,246,.08);color:#2563eb;border:1.5px solid rgba(59,130,246,.15)}
+.badge-orange{background:rgba(244,81,30,.08);color:var(--or);border:1.5px solid rgba(244,81,30,.18)}
+
+/* TABS */
+.tabs{display:flex;background:var(--gray1);border-radius:14px;padding:4px;gap:3px}
+.tab{flex:1;padding:10px 4px;border-radius:10px;border:none;background:transparent;
+  color:var(--mt);font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s}
+.tab.active{background:var(--white);color:var(--v4);box-shadow:0 2px 10px rgba(74,44,138,.12)}
+
+/* VERSE BLOCK */
+.vblock{background:linear-gradient(135deg,rgba(245,158,11,.06),rgba(244,81,30,.04));
+  border-left:3px solid var(--yw);border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:8px}
+.vnum{color:var(--yw);font-weight:800;font-size:11px;margin-bottom:3px}
+.vtext{color:var(--mt);font-size:13px;line-height:1.9;font-style:italic}
+
+/* RESPONSE CARD */
+.resp-card{background:var(--off);border:1.5px solid var(--bdr);border-radius:14px;padding:13px 15px;animation:slideUp .35s ease}
+
+/* CLOUD */
+#cloud-canvas,#proj-cloud-canvas{position:relative;width:100%;border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(74,44,138,.04),rgba(194,24,91,.02))}
+.cloud-word{position:absolute;transform-origin:center center;cursor:default;
+  font-family:'Nunito',sans-serif;font-weight:900;white-space:nowrap;user-select:none;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);animation:wordIn .6s cubic-bezier(.34,1.56,.64,1) both}
+.cloud-word:hover{transform:scale(1.2) rotate(var(--rot))!important;z-index:99!important}
+
+/* TOP BAR */
+.top-bar{background:var(--white);border-bottom:1.5px solid var(--bdr);
+  padding:12px 20px;padding-top:calc(12px + var(--safe-top));
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 12px rgba(74,44,138,.06);flex-shrink:0}
+
+/* RT DOT */
+.rt-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;
+  box-shadow:0 0 0 3px rgba(22,163,74,.15);animation:rtpulse 2s ease infinite}
+
+/* SETUP BANNER */
+.setup-banner{background:linear-gradient(135deg,rgba(244,81,30,.07),rgba(194,24,91,.05));
+  border:1.5px solid rgba(244,81,30,.2);border-radius:16px;padding:16px 18px}
+
+/* STEP ACCENT */
+.step-accent{width:4px;border-radius:99px;flex-shrink:0;background:linear-gradient(180deg,var(--v4),var(--mg))}
+
+/* SPLASH RING */
+.splash-ring{border-radius:50%;background:linear-gradient(135deg,rgba(74,44,138,.08),rgba(194,24,91,.05));
+  border:2px solid rgba(74,44,138,.1);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 14px rgba(74,44,138,.04),0 0 0 28px rgba(74,44,138,.02)}
+
+/* ── ONBOARDING ─────────────────────────────────────── */
+.ob-bubble{background:var(--white);border:1.5px solid var(--bdr2);border-radius:18px;
+  padding:16px 18px;box-shadow:var(--shadow-lg);position:relative;flex:1}
+.ob-bubble::after{content:'';position:absolute;bottom:-10px;left:28px;width:18px;height:18px;
+  background:var(--white);border-right:1.5px solid var(--bdr2);border-bottom:1.5px solid var(--bdr2);
+  transform:rotate(45deg)}
+.ob-mascot{border-radius:50%;background:linear-gradient(135deg,rgba(74,44,138,.08),rgba(194,24,91,.05));
+  border:1.5px solid rgba(74,44,138,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ob-pbar{background:var(--gray2);border-radius:99px;height:5px;overflow:hidden}
+.ob-pfill{height:5px;border-radius:99px;background:linear-gradient(90deg,var(--v4),var(--mg));transition:width .5s}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--gray2);transition:all .35s}
+.ob-dot.done{background:var(--mg)}.ob-dot.active{background:var(--v4);transform:scale(1.5);box-shadow:0 0 0 3px rgba(74,44,138,.18)}
+.role-card{padding:20px;border-radius:18px;border:2px solid var(--bdr);cursor:pointer;
+  transition:all .25s cubic-bezier(.34,1.4,.64,1);background:var(--white);box-shadow:var(--shadow)}
+.role-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.role-card.selected{border-color:var(--v4);background:var(--v4l);box-shadow:0 0 0 4px rgba(74,44,138,.1),var(--shadow-lg)}
+.ob-demo-card{background:var(--off);border:1.5px solid var(--bdr);border-radius:14px;padding:14px 16px}
+.ob-inp{background:var(--white);border:1.5px solid var(--bdr2);border-radius:10px;
+  padding:10px 14px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--tx);width:100%;outline:none}
+.ob-inp:focus{border-color:var(--v4);box-shadow:0 0 0 3px rgba(74,44,138,.1)}
+.ob-inp::placeholder{color:var(--mt2)}
+.ob-badge-green{background:rgba(22,163,74,.1);color:#16a34a;border:1px solid rgba(22,163,74,.2);
+  display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700}
+.check-circle{width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(22,163,74,.12),rgba(22,163,74,.06));
+  border:2px solid rgba(22,163,74,.25);display:flex;align-items:center;justify-content:center;
+  font-size:22px;animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1)}
+
+/* ANIMATIONS */
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes wordIn{from{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(var(--rot))}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rot))}}
+@keyframes rtpulse{0%,100%{box-shadow:0 0 0 3px rgba(22,163,74,.15)}50%{box-shadow:0 0 0 6px rgba(22,163,74,.25)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+@keyframes slideR{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.pulse{animation:pulse 2.2s ease infinite}.float{animation:float 3.8s ease infinite}
+.fade-in{animation:fadeIn .5s ease both}.scale-in{animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1) both}
+.slide-r{animation:slideR .4s ease both}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gray3);border-radius:2px}
+.hr{border:none;border-top:1.5px solid var(--bdr);margin:14px 0}
+.f{display:flex}.fc{flex-direction:column}.fw{flex-wrap:wrap}
+.ac{align-items:center}.as{align-items:flex-start}.jc{justify-content:center}.jb{justify-content:space-between}
+.tc{text-align:center}.tr{text-align:right}
+.g6{gap:6px}.g8{gap:8px}.g12{gap:12px}.g16{gap:16px}
+.mt4{margin-top:4px}.mt6{margin-top:6px}.mt8{margin-top:8px}.mt12{margin-top:12px}
+.mt16{margin-top:16px}.mt20{margin-top:20px}.mt24{margin-top:24px}.mt32{margin-top:32px}
+.mb6{margin-bottom:6px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
+.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb24{margin-bottom:24px}
+.wfull{width:100%}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="app">
+
+<!-- ══════════════ ONBOARDING: ROLE ══════════════ -->
+<div id="screen-ob-role" class="screen">
+<div class="scroll"><div class="inner">
+  <div class="tc mt32 mb32 fade-in">
+    <div class="float f jc mb16" style="justify-content:center">
+      <div class="splash-ring" style="width:100px;height:100px">
+        <svg width="64" height="64" viewBox="0 0 120 120" fill="none">
+          <defs>
+            <linearGradient id="rg1" x1="55" y1="8" x2="72" y2="54" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f59e0b"/><stop offset="55%" stop-color="#f4511e"/><stop offset="100%" stop-color="#c2185b"/></linearGradient>
+            <linearGradient id="rg2" x1="60" y1="12" x2="44" y2="54" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#9C27B0"/></linearGradient>
+            <linearGradient id="rbL" x1="18" y1="58" x2="58" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E91E63"/><stop offset="100%" stop-color="#7B1FA2"/></linearGradient>
+            <linearGradient id="rbR" x1="62" y1="58" x2="102" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#29B6F6"/><stop offset="100%" stop-color="#7B1FA2"/></linearGradient>
+          </defs>
+          <path d="M53 52 C49 38 43 26 52 10 C46 26 56 36 54 52 Z" fill="url(#rg2)" opacity=".92"/>
+          <path d="M67 52 C71 38 77 24 68 10 C74 26 64 38 66 52 Z" fill="url(#rg1)" opacity=".92"/>
+          <path d="M60 52 C56 36 58 22 62 10 C66 22 64 36 60 52 Z" fill="url(#rg1)" opacity=".7"/>
+          <path d="M16 66 Q36 58 58 63 L58 92 Q36 88 16 94 Z" fill="url(#rbL)"/>
+          <path d="M62 63 Q84 58 104 66 L104 94 Q84 88 62 92 Z" fill="url(#rbR)"/>
+          <rect x="57" y="61" width="6" height="33" rx="3" fill="white" opacity=".4"/>
+        </svg>
+      </div>
+    </div>
+    <h1 class="logo-text" style="font-size:52px;line-height:1">Hagah</h1>
+    <p style="color:var(--mt);font-size:12px;margin-top:8px;letter-spacing:2px;font-weight:700;text-transform:uppercase">Méditer la Parole, ensemble</p>
+  </div>
+
+  <p style="font-size:16px;font-weight:800;color:var(--tx);text-align:center;margin-bottom:16px">Tu es… ?</p>
+
+  <div class="fc g12 mb24" id="role-cards">
+    <div class="role-card" id="role-participant" onclick="selectRole('participant')">
+      <div class="f ac g12">
+        <div style="width:50px;height:50px;border-radius:13px;font-size:24px;background:var(--v4l);border:1.5px solid rgba(74,44,138,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">🙏</div>
+        <div style="flex:1">
+          <p style="font-weight:800;font-size:15px;color:var(--tx)">Participant</p>
+          <p style="font-size:13px;color:var(--mt);margin-top:2px">Je rejoins une session pour méditer la Parole</p>
+        </div>
+        <div id="check-participant" style="width:22px;height:22px;border-radius:50%;background:var(--gray2);border:1.5px solid var(--gray3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s"></div>
+      </div>
+    </div>
+    <div class="role-card" id="role-mediateur" onclick="selectRole('mediateur')">
+      <div class="f ac g12">
+        <div style="width:50px;height:50px;border-radius:13px;font-size:24px;background:var(--mgl);border:1.5px solid rgba(194,24,91,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">🎛️</div>
+        <div style="flex:1">
+          <p style="font-weight:800;font-size:15px;color:var(--tx)">Médiateur</p>
+          <p style="font-size:13px;color:var(--mt);margin-top:2px">Je crée et j'anime une session pour mon groupe</p>
+        </div>
+        <div id="check-mediateur" style="width:22px;height:22px;border-radius:50%;background:var(--gray2);border:1.5px solid var(--gray3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="role-cta" onclick="startOnboarding()" disabled style="border-radius:16px;padding:17px;font-size:15px">
+    Commencer le tutoriel →
+  </button>
+  <button class="btn-text wfull mt8" style="display:block;text-align:center" onclick="skipOnboarding()">
+    Passer — je connais déjà l'app
+  </button>
+</div></div>
+</div>
+
+<!-- ══════════════ ONBOARDING: STEPS ══════════════ -->
+<div id="screen-ob-steps" class="screen">
+<div class="scroll"><div class="inner">
+  <!-- header -->
+  <div class="f jb ac mb16 mt4">
+    <button class="btn-text" onclick="showScreen('ob-role')" style="font-size:13px">← Retour</button>
+    <div class="f ac g8">
+      <span class="logo-text" style="font-size:18px">Hagah</span>
+    </div>
+    <button class="btn-text" onclick="skipOnboarding()" style="font-size:13px">Passer →</button>
+  </div>
+  <!-- progress -->
+  <div class="f jb ac mb6">
+    <span id="ob-progress-label" style="font-size:10px;font-weight:800;color:var(--mt2);letter-spacing:1px">1 / 6</span>
+  </div>
+  <div class="ob-pbar mb20"><div class="ob-pfill" id="ob-pfill" style="width:16%"></div></div>
+
+  <!-- mascot + bubble -->
+  <div class="f ac g12 mb16" id="ob-mascot-row">
+    <div class="ob-mascot" id="ob-mascot" style="width:64px;height:64px">
+      <span id="ob-emoji" style="font-size:32px">🙏</span>
+    </div>
+    <div class="ob-bubble">
+      <h2 class="script mb6" id="ob-title" style="font-size:20px;color:var(--tx)">Titre</h2>
+      <p id="ob-text" style="color:var(--mt);font-size:13px;line-height:1.78"></p>
+    </div>
+  </div>
+
+  <!-- dynamic content zone -->
+  <div id="ob-content"></div>
+
+  <!-- step dots -->
+  <div class="f jc g8 mt16 mb16" id="ob-dots"></div>
+
+  <!-- CTA -->
+  <button class="btn btn-primary" id="ob-cta" onclick="obNext()" style="border-radius:16px;padding:16px;font-size:15px">
+    Suivant →
+  </button>
+</div></div>
+</div>
+
+<!-- ══════════════ ONBOARDING: DONE ══════════════ -->
+<div id="screen-ob-done" class="screen">
+<div class="centered">
+  <div class="splash-ring float mb24" style="width:110px;height:110px;background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(244,81,30,.06));border-color:rgba(245,158,11,.2)">
+    <span style="font-size:52px">🌟</span>
+  </div>
+  <h1 class="logo-text fade-in" style="font-size:44px">Prêt !</h1>
+  <p class="fade-in" id="ob-done-text" style="color:var(--mt);font-size:15px;line-height:1.9;text-align:center;max-width:290px;margin:12px auto 0;animation-delay:.1s">
+    Tu peux maintenant utiliser Hagah.
+  </p>
+  <div class="card card-gold mt24 fade-in" style="padding:18px;text-align:center;max-width:320px;animation-delay:.2s">
+    <p style="font-style:italic;color:var(--mt);font-size:13px;line-height:2">
+      « Tes paroles ont été trouvées, et je les ai mangées ; elles ont été la joie de mon cœur. »<br>
+      <span class="script" style="color:var(--or);font-size:16px">— Jérémie 15:16</span>
+    </p>
+  </div>
+  <button class="btn btn-primary mt24 fade-in" style="max-width:320px;padding:17px;font-size:15px;border-radius:16px;animation-delay:.3s" onclick="finishOnboarding()">
+    🚀 Lancer Hagah
+  </button>
+</div>
+</div>
+
+<!-- ══════════════ MAIN APP ══════════════ -->
+<!-- HOME -->
+<div id="screen-home" class="screen">
+<div class="centered">
+  <div class="splash-ring float mb20" style="width:110px;height:110px">
+    <svg width="72" height="72" viewBox="0 0 120 120" fill="none">
+      <defs>
+        <linearGradient id="hg1" x1="55" y1="8" x2="72" y2="54" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f59e0b"/><stop offset="55%" stop-color="#f4511e"/><stop offset="100%" stop-color="#c2185b"/></linearGradient>
+        <linearGradient id="hg2" x1="60" y1="12" x2="44" y2="54" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#9C27B0"/></linearGradient>
+        <linearGradient id="hbL" x1="18" y1="58" x2="58" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E91E63"/><stop offset="100%" stop-color="#7B1FA2"/></linearGradient>
+        <linearGradient id="hbR" x1="62" y1="58" x2="102" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#29B6F6"/><stop offset="100%" stop-color="#7B1FA2"/></linearGradient>
+      </defs>
+      <path d="M53 52 C49 38 43 26 52 10 C46 26 56 36 54 52 Z" fill="url(#hg2)" opacity=".92"/>
+      <path d="M67 52 C71 38 77 24 68 10 C74 26 64 38 66 52 Z" fill="url(#hg1)" opacity=".92"/>
+      <path d="M60 52 C56 36 58 22 62 10 C66 22 64 36 60 52 Z" fill="url(#hg1)" opacity=".7"/>
+      <path d="M16 66 Q36 58 58 63 L58 92 Q36 88 16 94 Z" fill="url(#hbL)"/>
+      <path d="M62 63 Q84 58 104 66 L104 94 Q84 88 62 92 Z" fill="url(#hbR)"/>
+      <rect x="57" y="61" width="6" height="33" rx="3" fill="white" opacity=".4"/>
+    </svg>
+  </div>
+  <div class="fade-in tc" style="animation-delay:.1s">
+    <h1 class="logo-text" style="font-size:60px;line-height:1">Hagah</h1>
+    <p style="color:var(--mt);font-size:12px;letter-spacing:2px;font-weight:700;text-transform:uppercase;margin-top:8px">Méditer la Parole, ensemble</p>
+  </div>
+  <div id="home-rt" style="display:none;margin-top:14px" class="f ac g6 jc fade-in">
+    <div class="rt-dot"></div>
+    <span style="color:#16a34a;font-size:11px;font-weight:700">Supabase connecté</span>
+  </div>
+  <div class="fc g12 mt32 wfull fade-in" style="max-width:320px;animation-delay:.2s">
+    <button class="btn btn-primary" onclick="showScreen('join')" style="font-size:16px;padding:18px;border-radius:16px">🙏 Rejoindre une session</button>
+    <button class="btn btn-ghost" onclick="showScreen('create')" style="padding:16px;font-size:15px;border-radius:16px">🎛️ Espace Médiateur</button>
+  </div>
+  <button class="btn-text mt16 fade-in" onclick="restartOnboarding()" style="font-size:12px;animation-delay:.3s">
+    🎓 Revoir le tutoriel
+  </button>
+  <p style="color:var(--mt2);font-size:11px;line-height:2.2;text-align:center;margin-top:16px">
+    Une expérience de méditation biblique collective<br>guidée par la présence de l'Esprit
+  </p>
+</div>
+</div>
+
+<!-- JOIN -->
+<div id="screen-join" class="screen">
+<div class="top-bar">
+  <button class="btn btn-ghost btn-sm" onclick="showScreen('home')" style="padding:8px 14px">← Retour</button>
+  <span class="logo-text" style="font-size:22px">Hagah</span>
+  <div style="width:70px"></div>
+</div>
+<div class="scroll"><div class="inner">
+  <div id="join-setup-banner"></div>
+  <div class="tc mt16 mb24">
+    <h2 style="font-size:22px;font-weight:800;color:var(--tx)">Rejoindre une session</h2>
+    <p style="color:var(--mt);font-size:14px;margin-top:6px">Entre ton prénom et le code reçu</p>
+  </div>
+  <div class="card card-el" style="padding:24px">
+    <div class="mb16"><span class="label">Ton prénom</span>
+      <input class="inp" id="join-name" placeholder="Jean, Marie, Samuel…" autocomplete="off"/>
+    </div>
+    <div class="mb20"><span class="label">Code de session</span>
+      <input class="inp" id="join-code" placeholder="AB3XY" maxlength="6"
+        style="text-align:center;letter-spacing:7px;font-size:24px;font-weight:800"
+        oninput="this.value=this.value.toUpperCase()"/>
+    </div>
+    <p id="join-err" style="color:var(--mg);font-size:13px;text-align:center;display:none;margin-bottom:12px;font-weight:700"></p>
+    <button class="btn btn-primary" id="join-btn" onclick="doJoin()" style="border-radius:16px">Entrer dans la session ✨</button>
+  </div>
+  <div class="card card-gold mt16" style="padding:18px;text-align:center">
+    <p style="color:var(--mt);font-size:13px;line-height:2;font-style:italic">
+      « Demeure en moi, et moi en toi. »<br>
+      <span class="script" style="color:var(--or);font-size:16px">— Jean 15:4</span>
+    </p>
+  </div>
+</div></div>
+</div>
+
+<!-- WAITING -->
+<div id="screen-waiting" class="screen">
+<div class="centered">
+  <div class="splash-ring float mb20" style="width:110px;height:110px"><span style="font-size:52px">🕊️</span></div>
+  <h2 class="script fade-in" id="waiting-name" style="font-size:28px;color:var(--tx)">Bienvenue 👋</h2>
+  <p style="color:var(--mt);font-size:15px;margin-top:6px" id="waiting-dots">En attente du médiateur…</p>
+  <div class="f ac g6 mt6" id="waiting-rt" style="display:none!important">
+    <div class="rt-dot"></div><span style="color:#16a34a;font-size:11px;font-weight:700">Temps réel actif</span>
+  </div>
+  <div class="card card-el mt20 fade-in" style="padding:22px;text-align:center;width:100%;max-width:300px">
+    <p class="label" style="text-align:center">SESSION</p>
+    <p class="script mt6" id="waiting-code" style="font-size:32px;letter-spacing:8px;color:var(--or)">—</p>
+    <div class="hr"></div>
+    <p style="color:var(--mt);font-size:14px" id="waiting-count">👥 — participants</p>
+  </div>
+</div>
+</div>
+
+<!-- STEP -->
+<div id="screen-step" class="screen">
+<div class="top-bar">
+  <div class="f ac g8">
+    <svg width="26" height="26" viewBox="0 0 120 120" fill="none">
+      <defs><linearGradient id="sg1" x1="55" y1="8" x2="72" y2="54" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#c2185b"/></linearGradient><linearGradient id="sbL" x1="18" y1="58" x2="58" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E91E63"/><stop offset="100%" stop-color="#7B1FA2"/></linearGradient><linearGradient id="sbR" x1="62" y1="58" x2="102" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#29B6F6"/><stop offset="100%" stop-color="#7B1FA2"/></linearGradient></defs>
+      <path d="M53 52 C49 38 43 26 52 10 C46 26 56 36 54 52 Z" fill="url(#sg1)" opacity=".9"/>
+      <path d="M67 52 C71 38 77 24 68 10 C74 26 64 38 66 52 Z" fill="url(#sg1)" opacity=".9"/>
+      <path d="M16 66 Q36 58 58 63 L58 92 Q36 88 16 94 Z" fill="url(#sbL)"/>
+      <path d="M62 63 Q84 58 104 66 L104 94 Q84 88 62 92 Z" fill="url(#sbR)"/>
+    </svg>
+    <span style="color:var(--mt);font-size:13px;font-weight:700" id="step-name"></span>
+    <span class="badge badge-purple" id="step-version" style="font-size:10px;padding:3px 9px"></span>
+  </div>
+  <div class="timer-wrap">
+    <svg viewBox="0 0 72 72" width="72" height="72">
+      <circle cx="36" cy="36" r="30" fill="none" stroke="var(--gray2)" stroke-width="4.5"/>
+      <circle id="timer-circle" cx="36" cy="36" r="30" fill="none" stroke="var(--v4)" stroke-width="4.5" stroke-dasharray="188.5 188.5" stroke-linecap="round"/>
+    </svg>
+    <span class="timer-num" id="timer-text">3:00</span>
+  </div>
+</div>
+<div class="scroll"><div class="inner">
+  <div class="dots mt12 mb8" id="step-dots"></div>
+  <div class="prog-track mb6"><div class="prog-fill" id="step-prog" style="width:0%"></div></div>
+  <p class="tr mb16" id="step-count-label" style="color:var(--mt2);font-size:10px;font-weight:800;letter-spacing:.5px"></p>
+  <div class="card card-purple fade-in mb12" style="padding:20px">
+    <div class="f ac g8 mb12">
+      <div class="step-accent" style="height:44px"></div>
+      <div>
+        <p id="step-num-label" style="color:var(--mt2);font-size:10px;letter-spacing:1.2px;font-weight:800;text-transform:uppercase"></p>
+        <h2 class="script" id="step-title" style="font-size:22px;color:var(--tx)"></h2>
+      </div>
+      <span id="step-icon" style="font-size:26px;margin-left:auto"></span>
+    </div>
+    <p id="step-instruction" style="color:var(--mt);font-size:14px;line-height:1.8;font-style:italic"></p>
+  </div>
+  <div class="card card-gold fade-in mb12" id="step-passage" style="display:none;padding:0;overflow:hidden">
+    <div style="padding:12px 16px;border-bottom:1.5px solid rgba(245,158,11,.15);display:flex;align-items:center;gap:8px">
+      <span class="script" id="step-passage-ref" style="font-size:15px;color:var(--or)">📖</span>
+      <span class="badge badge-blue" id="step-passage-ver" style="font-size:10px;margin-left:auto;padding:3px 10px"></span>
+    </div>
+    <div style="padding:14px 16px;max-height:210px;overflow-y:auto" id="step-passage-text"></div>
+  </div>
+  <div id="step-answer-wrap" class="fade-in">
+    <input class="inp" id="step-answer-word" placeholder="Un mot…" style="text-align:center;font-size:20px;font-weight:800;letter-spacing:2px;display:none"/>
+    <textarea class="inp" id="step-answer-text" placeholder="Écris ta réponse…" rows="4"></textarea>
+    <button class="btn btn-primary mt8" id="step-send-btn" onclick="sendResponse()" style="border-radius:16px">Envoyer ma réponse ✨</button>
+  </div>
+  <div class="card scale-in tc" id="step-sent" style="display:none;padding:24px">
+    <div class="check-circle" style="margin:0 auto 12px"></div>
+    <p style="font-weight:800;font-size:15px;color:var(--tx)">Réponse envoyée !</p>
+    <p style="color:var(--mt);font-size:13px;margin-top:6px">En attente de l'étape suivante…</p>
+    <div class="mt12" style="background:var(--off2);border-radius:12px;padding:12px 16px;border:1.5px solid var(--bdr)">
+      <p id="step-sent-text" style="font-style:italic;color:var(--mt);font-size:13px"></p>
+    </div>
+  </div>
+  <div style="height:40px"></div>
+</div></div>
+</div>
+
+<!-- END -->
+<div id="screen-end" class="screen">
+<div class="centered">
+  <div class="splash-ring float mb20" style="width:120px;height:120px;background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(244,81,30,.07))"><span style="font-size:56px">🌟</span></div>
+  <h2 class="script fade-in" id="end-name" style="font-size:30px;color:var(--tx)">Merci !</h2>
+  <p class="fade-in" style="color:var(--mt);font-size:15px;line-height:1.9;text-align:center;max-width:280px;margin:10px auto 0;animation-delay:.1s">
+    Tu as participé à une révélation collective.<br>Que la Parole continue à habiter ton cœur.
+  </p>
+  <div class="card card-gold mt20 fade-in" style="padding:20px;text-align:center;max-width:300px;animation-delay:.2s">
+    <p style="font-style:italic;color:var(--mt);font-size:13px;line-height:2">
+      « Je suis le cep, vous êtes les sarments. »<br>
+      <span class="script" style="color:var(--or);font-size:17px">— Jean 15:5</span>
+    </p>
+  </div>
+  <button class="btn btn-ghost mt20" onclick="showScreen('home')" style="border-radius:14px">← Accueil</button>
+</div>
+</div>
+
+<!-- CREATE -->
+<div id="screen-create" class="screen">
+<div class="top-bar">
+  <button class="btn btn-ghost btn-sm" onclick="showScreen('home')" style="padding:8px 14px">← Retour</button>
+  <span class="logo-text" style="font-size:22px">Hagah</span>
+  <div style="width:70px"></div>
+</div>
+<div class="scroll"><div class="inner">
+  <div id="create-setup-banner"></div>
+  <div class="tc mt16 mb24">
+    <h2 style="font-size:22px;font-weight:800;color:var(--tx)">Nouvelle Session</h2>
+    <p style="color:var(--mt);font-size:14px;margin-top:6px">Configure ta session de méditation</p>
+  </div>
+  <div class="card card-el" style="padding:22px">
+    <div class="mb16"><span class="label">Référence biblique</span>
+      <div class="f g8">
+        <input class="inp" id="create-ref" value="Jean 15:1-5" style="flex:1"/>
+        <button class="btn btn-purple btn-sm" onclick="previewPassage()" id="preview-btn" style="border-radius:11px;white-space:nowrap">🔍</button>
+      </div>
+    </div>
+    <div class="mb16"><span class="label">Version de la Bible</span>
+      <div class="f g8 fw mt6">
+        <button class="btn btn-sm" id="ver-LSG" onclick="selectVersion('LSG')" style="background:var(--v4l);color:var(--v4);border:1.5px solid rgba(74,44,138,.2);border-radius:10px">🇫🇷 LSG</button>
+        <button class="btn btn-ghost btn-sm" id="ver-KJV" onclick="selectVersion('KJV')" style="border-radius:10px">🇬🇧 KJV</button>
+      </div>
+    </div>
+    <div class="mb16"><span class="label">Durée par étape (secondes)</span>
+      <input class="inp" type="number" id="create-timer" value="180" min="30" max="600"/>
+    </div>
+    <div id="passage-preview" style="display:none;margin-bottom:16px">
+      <div class="card card-gold" style="padding:0;overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1.5px solid rgba(245,158,11,.15);display:flex;align-items:center;gap:8px">
+          <span class="script" id="preview-ref" style="font-size:14px;color:var(--or)">📖</span>
+          <span class="badge badge-blue" id="preview-ver" style="font-size:10px;margin-left:auto;padding:3px 10px"></span>
+        </div>
+        <div id="preview-text" style="padding:12px 14px;max-height:180px;overflow-y:auto"></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="create-btn" onclick="doCreate()" style="border-radius:16px">Créer la session ✨</button>
+  </div>
+</div></div>
+</div>
+
+<!-- MEDIATEUR -->
+<div id="screen-med" class="screen">
+<div class="top-bar">
+  <div class="f ac g8">
+    <button class="btn btn-ghost" style="width:36px;height:36px;padding:0;border-radius:10px;font-size:15px" onclick="showScreen('home')">←</button>
+    <span class="logo-text" style="font-size:22px">Hagah</span>
+    <span class="badge badge-code" id="med-code" style="font-size:13px;letter-spacing:3px;padding:4px 12px">—</span>
+    <div class="f ac g6" id="med-rt" style="display:none"><div class="rt-dot"></div><span style="color:#16a34a;font-size:10px;font-weight:700">Live</span></div>
+  </div>
+  <div class="f ac g8">
+    <span class="badge" id="med-status-badge">🟡 Attente</span>
+    <button class="btn btn-purple btn-sm" onclick="showScreen('projection')" style="border-radius:10px">📺</button>
+  </div>
+</div>
+<div class="tabs" style="margin:10px 16px 0;border-radius:12px">
+  <button class="tab active" data-tab="ctrl" onclick="medTab('ctrl')">🎛️ Ctrl</button>
+  <button class="tab" data-tab="bible" onclick="medTab('bible')">📖 Bible</button>
+  <button class="tab" data-tab="resp" onclick="medTab('resp')">💬 Réponses</button>
+  <button class="tab" data-tab="cloud" onclick="medTab('cloud')">☁️ Cloud</button>
+</div>
+<div class="scroll"><div class="inner">
+  <div id="med-tab-ctrl">
+    <div class="card card-el mb12" style="padding:20px">
+      <div class="f jb as mb16">
+        <div style="flex:1">
+          <p class="label">Étape courante</p>
+          <h2 class="script mt4" id="med-step-title" style="font-size:24px;color:var(--tx)">—</h2>
+          <p style="color:var(--mt);font-size:12px;line-height:1.7;margin-top:4px" id="med-step-instr"></p>
+        </div>
+        <div class="tr" style="margin-left:14px">
+          <p class="label" style="text-align:right">RÉPONSES</p>
+          <p class="script" id="med-resp-count" style="font-size:46px;color:var(--v4);line-height:1">0</p>
+          <p style="color:var(--mt2);font-size:12px" id="med-resp-total">/ 0</p>
+        </div>
+      </div>
+      <div class="prog-track mb16"><div class="prog-fill" id="med-prog" style="width:0%"></div></div>
+      <div id="med-ctrl-btns">
+        <button class="btn btn-primary" id="med-start-btn" onclick="startSession()" style="display:none;border-radius:14px">🚀 Démarrer la session</button>
+        <div id="med-nav-btns" class="f g8" style="display:none">
+          <button class="btn btn-ghost" id="med-prev" onclick="changeStep(-1)" style="flex:1;border-radius:12px">← Préc.</button>
+          <button class="btn btn-primary" id="med-next" onclick="changeStep(1)" style="flex:2;padding:14px;border-radius:12px">Suivant →</button>
+        </div>
+        <p id="med-ended-label" class="tc" style="display:none;padding:12px;font-size:13px;color:var(--mt)">Session terminée ✅</p>
+      </div>
+    </div>
+    <div class="card mb12" style="padding:18px">
+      <p class="label mb8">Progression</p>
+      <div id="med-steps-list" class="fc" style="gap:4px"></div>
+    </div>
+    <div class="card" style="padding:18px">
+      <p class="label mb8">Participants (<span id="med-ptcp-count">0</span>)</p>
+      <div id="med-participants" class="f fw g8"><p style="color:var(--mt);font-size:13px" class="pulse">En attente…</p></div>
+    </div>
+  </div>
+  <div id="med-tab-bible" style="display:none">
+    <div class="card card-el mb12" style="padding:20px">
+      <p class="label mb8">Rechercher un passage</p>
+      <div class="f g8 mb12">
+        <input class="inp" id="bible-search-inp" placeholder="Jean 3:16, Psaume 23…" style="flex:1"/>
+        <button class="btn btn-primary btn-sm" onclick="bibleSearch()" style="border-radius:11px;padding:10px 16px">🔍</button>
+      </div>
+      <div class="f g8 fw mb12">
+        <button class="btn btn-sm" id="bible-ver-LSG" onclick="bibleSelectVer('LSG')" style="background:var(--v4l);color:var(--v4);border:1.5px solid rgba(74,44,138,.2);border-radius:10px">🇫🇷 LSG</button>
+        <button class="btn btn-ghost btn-sm" id="bible-ver-KJV" onclick="bibleSelectVer('KJV')" style="border-radius:10px">🇬🇧 KJV</button>
+      </div>
+      <button class="btn btn-primary wfull" onclick="bibleApply()" style="padding:12px;border-radius:12px">✅ Appliquer à la session</button>
+    </div>
+    <div class="card card-gold" style="padding:0;overflow:hidden">
+      <div style="padding:12px 16px;border-bottom:1.5px solid rgba(245,158,11,.15);display:flex;align-items:center;gap:8px">
+        <span class="script" id="bible-ref-label" style="font-size:14px;color:var(--or)">📖 Passage</span>
+        <span class="badge badge-blue" id="bible-ver-label" style="font-size:10px;margin-left:auto;padding:3px 10px"></span>
+      </div>
+      <div id="bible-text-display" style="padding:14px 16px;max-height:340px;overflow-y:auto"><p style="color:var(--mt);font-size:13px" class="pulse">Chargement…</p></div>
+    </div>
+  </div>
+  <div id="med-tab-resp" style="display:none">
+    <p style="color:var(--mt);font-size:13px;margin-bottom:12px">
+      Réponses — <strong style="color:var(--tx)" id="med-resp-step-label">—</strong>
+      (<span id="med-resp-cur">0</span>/<span id="med-resp-tot2">0</span>)
+    </p>
+    <div id="med-resp-list" class="fc" style="gap:8px">
+      <div class="card tc" style="padding:40px"><p style="color:var(--mt);font-size:14px" class="pulse">En attente…</p></div>
+    </div>
+  </div>
+  <div id="med-tab-cloud" style="display:none">
+    <div class="card mb12" style="padding:16px">
+      <p class="label mb8">☁️ Mots clés — Étape 4</p>
+      <div id="cloud-canvas" style="height:260px"></div>
+    </div>
+    <div class="card" style="padding:18px">
+      <p class="label mb8">Fréquences</p>
+      <div id="cloud-stats" class="fc" style="gap:10px"></div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- PROJECTION -->
+<div id="screen-projection" class="screen">
+<div class="top-bar">
+  <div class="f ac g8">
+    <svg width="34" height="34" viewBox="0 0 120 120" fill="none">
+      <defs><linearGradient id="pg1" x1="55" y1="8" x2="72" y2="54" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#c2185b"/></linearGradient><linearGradient id="pbL" x1="18" y1="58" x2="58" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E91E63"/><stop offset="100%" stop-color="#7B1FA2"/></linearGradient><linearGradient id="pbR" x1="62" y1="58" x2="102" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#29B6F6"/><stop offset="100%" stop-color="#7B1FA2"/></linearGradient></defs>
+      <path d="M53 52 C49 38 43 26 52 10 C46 26 56 36 54 52 Z" fill="url(#pg1)" opacity=".9"/>
+      <path d="M67 52 C71 38 77 24 68 10 C74 26 64 38 66 52 Z" fill="url(#pg1)" opacity=".9"/>
+      <path d="M16 66 Q36 58 58 63 L58 92 Q36 88 16 94 Z" fill="url(#pbL)"/>
+      <path d="M62 63 Q84 58 104 66 L104 94 Q84 88 62 92 Z" fill="url(#pbR)"/>
+      <rect x="57" y="61" width="6" height="33" rx="3" fill="white" opacity=".4"/>
+    </svg>
+    <div>
+      <span class="logo-text" style="font-size:20px">Hagah</span>
+      <div class="f ac g6" style="margin-top:1px">
+        <div class="rt-dot" id="proj-rt-dot" style="display:none;width:6px;height:6px"></div>
+        <p style="color:var(--mt2);font-size:9px;letter-spacing:1.5px;font-weight:800">PROJECTION</p>
+      </div>
+    </div>
+    <span class="badge badge-blue" id="proj-passage" style="font-size:10px;padding:3px 10px"></span>
+  </div>
+  <div class="f ac g8">
+    <span class="badge badge-code" id="proj-code" style="letter-spacing:4px;font-size:14px;padding:5px 12px">—</span>
+    <div class="timer-wrap" style="width:58px;height:58px">
+      <svg viewBox="0 0 72 72" width="58" height="58">
+        <circle cx="36" cy="36" r="30" fill="none" stroke="var(--gray2)" stroke-width="4.5"/>
+        <circle id="proj-timer-circle" cx="36" cy="36" r="30" fill="none" stroke="var(--v4)" stroke-width="4.5" stroke-dasharray="188.5 188.5" stroke-linecap="round"/>
+      </svg>
+      <span class="timer-num" id="proj-timer-text" style="font-size:13px">3:00</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="showScreen('med')" style="border-radius:10px">✕</button>
+  </div>
+</div>
+<div class="scroll"><div class="inner-lg">
+  <div class="card card-purple mb12 mt8 fade-in" style="padding:20px">
+    <p class="label">Étape en cours</p>
+    <div class="f ac g8 mt8 mb8">
+      <div class="step-accent" style="height:52px"></div>
+      <div style="flex:1">
+        <h2 class="script" id="proj-step-title" style="font-size:28px;color:var(--tx)"></h2>
+        <p style="color:var(--mt);font-size:13px;font-style:italic;line-height:1.7;margin-top:4px" id="proj-step-instr"></p>
+      </div>
+      <span id="proj-step-icon" style="font-size:36px"></span>
+    </div>
+  </div>
+  <div class="f g8 mb12">
+    <div class="card" style="flex:2;padding:16px">
+      <p class="label mb6">PROGRESSION</p>
+      <div class="prog-track mb6"><div class="prog-fill" id="proj-prog" style="width:0%"></div></div>
+      <p style="color:var(--mt);font-size:11px" id="proj-step-num"></p>
+    </div>
+    <div class="card" style="flex:1;padding:16px;text-align:center">
+      <p class="label mb4">RÉPONSES</p>
+      <p class="script" id="proj-resp-count" style="font-size:42px;color:var(--v4);line-height:1">0</p>
+    </div>
+  </div>
+  <div class="card mb12" id="proj-cloud-wrap" style="padding:14px;display:none">
+    <p class="label mb8">☁️ Mots Clés</p>
+    <div id="proj-cloud-canvas" style="height:180px"></div>
+  </div>
+  <div class="card" style="padding:16px">
+    <p class="label mb8">💬 Réponses en direct</p>
+    <div id="proj-resp-list" class="fc" style="gap:8px;max-height:320px;overflow-y:auto">
+      <div class="tc" style="padding:32px"><p style="color:var(--mt);font-size:14px" class="pulse">En attente…</p></div>
+    </div>
+  </div>
+  <div style="height:40px"></div>
+</div></div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════
+const STEPS=[
+  {n:1,key:"contexte",     title:"Contexte",           icon:"🌍",instr:"Situe-toi dans le contexte historique et géographique du passage.",          ph:"Décris le contexte…"},
+  {n:2,key:"lecture",      title:"Lecture",             icon:"📖",instr:"Lis le passage lentement, deux fois. Qu'est-ce qui te frappe en premier ?",  ph:"Ce qui me frappe…"},
+  {n:3,key:"personnages",  title:"Personnages",         icon:"👤",instr:"Identifie les personnages. Avec lequel t'identifies-tu le plus ?",           ph:"Je m'identifie à…"},
+  {n:4,key:"mot_cle",      title:"Mot Clé",             icon:"🔑",instr:"Quel mot résonne le plus profondément en toi ?",                             ph:"Un mot…",isWord:true},
+  {n:5,key:"dieu_parle",   title:"Ce que Dieu te dit", icon:"✨",instr:"Dans le silence, qu'est-ce que Dieu te dit personnellement ?",                ph:"Dieu me dit…"},
+  {n:6,key:"phrase",       title:"Phrase",              icon:"💬",instr:"Formule en une phrase ce que ce passage t'a révélé.",                        ph:"Ce passage révèle que…"},
+  {n:7,key:"verset",       title:"Verset",              icon:"📜",instr:"Quel verset résume le message que tu as reçu ?",                             ph:"Mon verset clé…"},
+  {n:8,key:"message_final",title:"Message Final",       icon:"🕊️",instr:"En une phrase, quel est le message collectif pour nous aujourd'hui ?",       ph:"Le message pour nous…"},
+  {n:9,key:"application",  title:"Application",         icon:"🌱",instr:"Quelle décision concrète vas-tu prendre cette semaine ?",                    ph:"Cette semaine je vais…"},
+];
+const FB={
+  LSG:{ref:"Jean 15:1-5",ver:"LSG",text:"[1] Je suis le vrai cep, et mon Père est le vigneron.\n[2] Tout sarment en moi qui ne porte pas de fruit, il l'enlève ; tout sarment qui porte du fruit, il le taille pour qu'il porte plus de fruit.\n[3] Vous êtes déjà purs à cause de la parole que je vous ai annoncée.\n[4] Demeurez en moi, et moi en vous. Le sarment ne peut de lui-même porter du fruit s'il ne demeure dans le cep ; ainsi vous non plus, si vous ne demeurez pas en moi.\n[5] Je suis le cep, vous êtes les sarments. Celui qui demeure en moi et en qui je demeure porte beaucoup de fruit ; car sans moi vous ne pouvez rien faire."},
+  KJV:{ref:"John 15:1-5",ver:"KJV",text:"[1] I am the true vine, and my Father is the husbandman.\n[2] Every branch in me that beareth not fruit he taketh away: and every branch that beareth fruit, he purgeth it, that it may bring forth more fruit.\n[3] Now ye are clean through the word which I have spoken unto you.\n[4] Abide in me, and I in you. As the branch cannot bear fruit of itself, except it abide in the vine; no more can ye, except ye abide in me.\n[5] I am the vine, ye are the branches: He that abideth in me, and I in him, the same bringeth forth much fruit: for without me ye can do nothing."},
+};
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let S={
+  screen:"",myName:"",myCode:"",sessionId:null,participantId:null,
+  session:null,participants:[],responses:[],
+  biblePassageData:null,medCurrentTab:"ctrl",
+  timerSec:180,timerTotal:180,timerIv:null,pollIv:null,
+  obRole:null,obStep:0,obSteps:[],
+  obDemoName:"",obDemoCode:"",obDemoAnswer:"",obDemoSent:false,
+  obDemoSessionCreated:false,obDemoStepN:1,
+};
+
+// ══════════════════════════════════════════════════════
+//  SCREEN ROUTER
+// ══════════════════════════════════════════════════════
+function showScreen(n){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById("screen-"+n).classList.add("active");
+  S.screen=n;
+  if(n==="home"){stopPolling();stopTimer();renderHome();}
+  if(n==="med"){renderMed();startPolling();}
+  if(n==="projection"){renderProjection();startPolling();}
+  if(n==="step"||n==="waiting")startPolling();
+}
+function renderHome(){
+  document.getElementById("home-rt").style.display=IS_CONFIGURED?"flex":"none";
+}
+
+// ══════════════════════════════════════════════════════
+//  ONBOARDING ENGINE
+// ══════════════════════════════════════════════════════
+let obSelectedRole=null;
+
+function selectRole(r){
+  obSelectedRole=r;
+  ["participant","mediateur"].forEach(id=>{
+    const card=document.getElementById("role-"+id);
+    const check=document.getElementById("check-"+id);
+    const on=id===r;
+    card.classList.toggle("selected",on);
+    check.style.background=on?"linear-gradient(135deg,var(--v4),var(--mg))":"var(--gray2)";
+    check.style.borderColor=on?"transparent":"var(--gray3)";
+    check.innerHTML=on?"<span style='color:white;font-size:12px'>✓</span>":"";
+  });
+  document.getElementById("role-cta").disabled=false;
+}
+
+function startOnboarding(){
+  if(!obSelectedRole)return;
+  S.obRole=obSelectedRole;
+  S.obStep=0;
+  S.obDemoSent=false;
+  S.obDemoSessionCreated=false;
+  S.obDemoStepN=1;
+  buildObSteps();
+  renderObStep();
+  showScreen("ob-steps");
+}
+
+function skipOnboarding(){
+  localStorage.setItem("hagah_ob_done","1");
+  showScreen("home");
+}
+
+function restartOnboarding(){
+  localStorage.removeItem("hagah_ob_done");
+  obSelectedRole=null;
+  ["participant","mediateur"].forEach(id=>{
+    document.getElementById("role-"+id)?.classList.remove("selected");
+    const c=document.getElementById("check-"+id);
+    if(c){c.style.background="var(--gray2)";c.style.borderColor="var(--gray3)";c.innerHTML="";}
+  });
+  const btn=document.getElementById("role-cta");
+  if(btn)btn.disabled=true;
+  showScreen("ob-role");
+}
+
+function finishOnboarding(){
+  localStorage.setItem("hagah_ob_done","1");
+  showScreen("home");
+}
+
+// ── Build steps for each role ──────────────────────────
+function buildObSteps(){
+  if(S.obRole==="participant"){
+    S.obSteps=[
+      {emoji:"🕊️",title:"Bienvenue dans Hagah !",
+       text:"Je suis ton guide. En quelques minutes, tu vas apprendre à méditer la Parole de Dieu collectivement. C'est simple, guidé et puissant. 🔥",
+       content:null, cta:"C'est parti !"},
+      {emoji:"📖",title:"C'est quoi Hagah ?",
+       text:"Hagah est une expérience de méditation biblique collective. Ton médiateur crée une session, tu rejoins avec un code, et vous méditez ensemble — chacun à son rythme.",
+       content:"ob-what",cta:"Compris !"},
+      {emoji:"🔑",title:"Rejoindre une session",
+       text:"Pour rejoindre, tu as besoin de ton prénom et du code donné par ton médiateur. Essaie toi-même !",
+       content:"ob-join-demo",cta:"Suivant"},
+      {emoji:"⏳",title:"La salle d'attente",
+       text:"Une fois connecté, tu arrives dans la salle d'attente. Dès que le médiateur démarre, l'étape 1 s'affiche automatiquement !",
+       content:"ob-waiting-demo",cta:"Je comprends"},
+      {emoji:"✨",title:"Répondre à une étape",
+       text:"Chaque étape a une consigne. Tu lis, tu médites, puis tu écris ta réponse. Essaie avec l'étape « Ce que Dieu te dit » !",
+       content:"ob-answer-demo",cta:S.obDemoSent?"Parfait !":"Suivant"},
+      {emoji:"🌟",title:"Tu es prêt !",
+       text:"Tu sais maintenant rejoindre une session, attendre le démarrage et répondre à chaque étape. La Parole t'attend. 🙏",
+       content:null,cta:"Commencer l'expérience",isDone:true},
+    ];
+  }else{
+    S.obSteps=[
+      {emoji:"🎛️",title:"Bienvenue, Médiateur !",
+       text:"Tu es le chef d'orchestre. Tu crées la session, choisis le passage, contrôles les étapes et vois les réponses en temps réel. Je vais te guider.",
+       content:null,cta:"Allons-y !"},
+      {emoji:"✨",title:"Créer une session",
+       text:"Commence par choisir ton passage biblique. Clique « Créer » pour générer un code unique à partager avec tes participants.",
+       content:"ob-create-demo",cta:"Suivant"},
+      {emoji:"📲",title:"Partage le code",
+       text:"Envoie le code par WhatsApp, SMS ou affiche-le en grand. Les participants entrent ce code pour rejoindre ta session.",
+       content:"ob-share-demo",cta:"Compris"},
+      {emoji:"👥",title:"Voir les participants",
+       text:"Dans ton dashboard, tu vois en temps réel qui a rejoint. Une fois que tout le monde est là, clique « Démarrer » !",
+       content:"ob-ptcp-demo",cta:"Suivant"},
+      {emoji:"⏭️",title:"Naviguer entre les étapes",
+       text:"Tu contrôles le rythme. Quand la plupart ont répondu, passe à l'étape suivante. Les participants suivent automatiquement !",
+       content:"ob-nav-demo",cta:"Suivant"},
+      {emoji:"💬",title:"Voir les réponses live",
+       text:"Dans l'onglet Réponses, tu vois tout en temps réel. L'onglet Cloud affiche les mots clés de l'étape 4.",
+       content:"ob-resp-demo",cta:"Super !"},
+      {emoji:"🌟",title:"Tu es prêt à animer !",
+       text:"Tu sais maintenant créer une session, partager le code, démarrer et naviguer. Que Dieu parle à travers toi ! 🙏",
+       content:null,cta:"Créer ma première session",isDone:true},
+    ];
+  }
+}
+
+function renderObStep(){
+  const steps=S.obSteps, i=S.obStep, s=steps[i], total=steps.length;
+  // progress
+  document.getElementById("ob-progress-label").textContent=`${i+1} / ${total}`;
+  document.getElementById("ob-pfill").style.width=`${((i+1)/total)*100}%`;
+  // mascot
+  document.getElementById("ob-emoji").textContent=s.emoji;
+  // title + text (typing effect)
+  document.getElementById("ob-title").textContent=s.title;
+  typeText("ob-text",s.text);
+  // content
+  const zone=document.getElementById("ob-content");
+  zone.innerHTML="";
+  if(s.content)buildObContent(s.content,zone);
+  // dots
+  const dotsEl=document.getElementById("ob-dots");
+  dotsEl.innerHTML=steps.map((_,j)=>`<div class="ob-dot ${j<i?"done":j===i?"active":""}"></div>`).join("");
+  // cta
+  const cta=document.getElementById("ob-cta");
+  // update cta text for answer demo
+  if(s.content==="ob-answer-demo") cta.textContent=S.obDemoSent?"Parfait ! →":"Suivant →";
+  else cta.textContent=(s.cta||"Suivant")+(s.isDone?"":" →");
+}
+
+function obNext(){
+  const s=S.obSteps[S.obStep];
+  if(s.isDone){
+    // show done screen
+    document.getElementById("ob-done-text").textContent=S.obRole==="participant"
+      ?"Tu sais maintenant rejoindre une session et méditer avec ton groupe. Bienvenue dans la communauté Hagah !"
+      :"Tu peux maintenant créer et animer ta première session Hagah. Que Dieu parle à travers toi !";
+    showScreen("ob-done");
+    return;
+  }
+  S.obStep=Math.min(S.obStep+1,S.obSteps.length-1);
+  buildObSteps(); // rebuild to update dynamic cta
+  renderObStep();
+}
+
+// ── Typing effect ──────────────────────────────────────
+let typingIv=null;
+function typeText(elId,text,speed=22){
+  if(typingIv)clearInterval(typingIv);
+  const el=document.getElementById(elId);
+  el.textContent="";
+  let i=0;
+  typingIv=setInterval(()=>{
+    if(i<text.length){el.textContent=text.slice(0,++i);}
+    else clearInterval(typingIv);
+  },speed);
+}
+
+// ── Build dynamic content ──────────────────────────────
+function buildObContent(type,zone){
+  zone.style.animation="slideR .4s ease";
+  switch(type){
+    case "ob-what":
+      zone.innerHTML=`
+        <div class="card card-purple mt12" style="padding:16px">
+          <div class="f ac g8 mb12">
+            <span style="font-size:20px">🎛️</span>
+            <div><p style="font-weight:800;font-size:13px;color:var(--tx)">Médiateur</p>
+            <p style="font-size:11px;color:var(--mt)">Crée et pilote la session</p></div>
+          </div>
+          <div style="height:2px;background:linear-gradient(90deg,var(--v4),var(--mg));border-radius:99px;margin-bottom:12px"></div>
+          <div class="f ac g8">
+            <span style="font-size:20px">🙏</span>
+            <div><p style="font-weight:800;font-size:13px;color:var(--tx)">Toi — Participant</p>
+            <p style="font-size:11px;color:var(--mt)">Médite et partage ta révélation</p></div>
+          </div>
+        </div>`;
+      break;
+    case "ob-join-demo":
+      zone.innerHTML=`
+        <div class="card card-el mt12" style="padding:18px">
+          <div class="mb12"><span class="label">Ton prénom</span>
+            <input class="ob-inp" id="ob-name-inp" placeholder="Entre ton prénom…" oninput="S.obDemoName=this.value;obCheckJoin()"/>
+          </div>
+          <div><span class="label">Code de session</span>
+            <input class="ob-inp" id="ob-code-inp" placeholder="Ex: HAGAH" maxlength="6"
+              style="text-align:center;letter-spacing:6px;font-size:20px;font-weight:800"
+              oninput="this.value=this.value.toUpperCase();S.obDemoCode=this.value;obCheckJoin()"/>
+          </div>
+          <div id="ob-join-check" style="display:none;margin-top:12px;text-align:center">
+            <div class="check-circle" style="margin:0 auto">✅</div>
+            <p style="color:#16a34a;font-size:13px;font-weight:700;margin-top:8px">Parfait ! Tu es prêt à rejoindre.</p>
+          </div>
+        </div>`;
+      break;
+    case "ob-waiting-demo":
+      zone.innerHTML=`
+        <div class="card card-el mt12" style="padding:20px;text-align:center">
+          <div class="f ac jc g8 mb12">
+            <div style="width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.2)"></div>
+            <span style="color:#16a34a;font-size:12px;font-weight:700">Temps réel actif</span>
+          </div>
+          <p class="script" style="font-size:22px;color:var(--tx)">Bienvenue, ${S.obDemoName||"Toi"} 👋</p>
+          <p style="color:var(--mt);font-size:13px;margin-top:6px">En attente du médiateur…</p>
+          <div style="background:var(--off);border-radius:12px;padding:12px 16px;margin-top:14px;border:1.5px solid var(--bdr)">
+            <p class="label" style="text-align:center">SESSION</p>
+            <p class="script" style="font-size:26px;color:var(--or);letter-spacing:7px;margin-top:4px">${S.obDemoCode||"HGH42"}</p>
+          </div>
+        </div>`;
+      break;
+    case "ob-answer-demo":
+      zone.innerHTML=S.obDemoSent?`
+        <div class="card scale-in mt12" style="padding:22px;text-align:center">
+          <div class="check-circle" style="margin:0 auto 12px">✅</div>
+          <p style="font-weight:800;font-size:15px;color:var(--tx)">Réponse envoyée !</p>
+          <div style="background:var(--off2);border-radius:12px;padding:12px 16px;margin-top:12px;border:1.5px solid var(--bdr)">
+            <p style="font-style:italic;color:var(--mt);font-size:13px">« ${S.obDemoAnswer} »</p>
+          </div>
+        </div>
+      `:`
+        <div class="card card-purple mt12" style="padding:18px">
+          <div class="f ac g8 mb12">
+            <span style="font-size:22px">✨</span>
+            <div>
+              <p style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--mt2);text-transform:uppercase">Étape 5</p>
+              <p class="script" style="font-size:18px;color:var(--tx)">Ce que Dieu te dit</p>
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--mt);font-style:italic;margin-bottom:12px;line-height:1.7">Dans le silence, qu'est-ce que Dieu te dit personnellement ?</p>
+          <textarea class="ob-inp" placeholder="Dieu me dit…" rows="3"
+            style="resize:none;line-height:1.75"
+            oninput="S.obDemoAnswer=this.value"></textarea>
+          <button class="btn btn-primary wfull mt8" style="padding:12px;font-size:14px;border-radius:12px"
+            onclick="obSendAnswer()" ${S.obDemoAnswer?"":'disabled'}>Envoyer ma réponse ✨</button>
+        </div>`;
+      break;
+    case "ob-create-demo":
+      zone.innerHTML=S.obDemoSessionCreated?`
+        <div class="card card-el mt12 scale-in" style="padding:20px;text-align:center">
+          <p class="label" style="text-align:center">CODE GÉNÉRÉ 🎉</p>
+          <p class="script" style="font-size:40px;color:var(--or);letter-spacing:10px;margin-top:8px">HGH42</p>
+          <p style="color:var(--mt);font-size:12px;margin-top:8px">Partage ce code avec tes participants 👆</p>
+        </div>
+      `:`
+        <div class="card card-el mt12" style="padding:18px">
+          <div class="mb12"><span class="label">Passage biblique</span>
+            <input class="ob-inp" value="Jean 15:1-5" oninput="S.obDemoPassage=this.value"/>
+          </div>
+          <div class="mb16"><span class="label">Durée par étape</span>
+            <div class="f g8">
+              ${[60,120,180,300].map(v=>`<div style="flex:1;padding:8px 4px;border-radius:10px;text-align:center;cursor:pointer;background:${v===180?"var(--v4l)":"var(--gray1)"};border:1.5px solid ${v===180?"rgba(74,44,138,.2)":"var(--bdr)"};font-size:12px;font-weight:700;color:${v===180?"var(--v4)":"var(--mt)"}">${v<60?v+"s":v/60+"min"}</div>`).join("")}
+            </div>
+          </div>
+          <button class="btn btn-primary wfull" style="padding:13px;font-size:14px;border-radius:12px"
+            onclick="obCreateSession()">Créer la session ✨</button>
+        </div>`;
+      break;
+    case "ob-share-demo":
+      zone.innerHTML=`
+        <div class="card mt12" style="padding:18px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+            ${["📱 WhatsApp","💬 SMS","📺 Écran"].map(m=>`<div style="padding:12px 6px;border-radius:12px;text-align:center;background:var(--off);border:1.5px solid var(--bdr);font-size:12px;font-weight:700;color:var(--mt)">${m}</div>`).join("")}
+          </div>
+          <div style="padding:16px;border-radius:14px;text-align:center;background:linear-gradient(135deg,rgba(245,158,11,.07),rgba(244,81,30,.04));border:1.5px solid rgba(245,158,11,.2)">
+            <p class="script" style="font-size:34px;color:var(--or);letter-spacing:8px">HGH42</p>
+            <p style="font-size:12px;color:var(--mt);margin-top:4px">Jean 15:1-5 · LSG</p>
+          </div>
+        </div>`;
+      break;
+    case "ob-ptcp-demo":
+      zone.innerHTML=`
+        <div class="card card-el mt12" style="padding:18px">
+          <p class="label mb8">Participants (3)</p>
+          <div class="f fw g8 mb16">
+            ${["Marie ✓","Jean ✓","Samuel ✓"].map(p=>`<div class="ob-badge-green">${p}</div>`).join("")}
+          </div>
+          <button class="btn btn-primary wfull" style="padding:13px;font-size:14px;border-radius:12px">🚀 Démarrer la session</button>
+        </div>`;
+      break;
+    case "ob-nav-demo":
+      zone.innerHTML=`
+        <div class="card card-el mt12" style="padding:18px" id="ob-nav-card">
+          <div class="f jb ac mb12">
+            <div>
+              <p class="label">Étape courante</p>
+              <p class="script mt4" id="ob-nav-step" style="font-size:20px;color:var(--tx)">${["🌍","📖","👤","🔑","✨","💬","📜","🕊️","🌱"][S.obDemoStepN-1]} ${["Contexte","Lecture","Personnages","Mot Clé","Ce que Dieu te dit","Phrase","Verset","Message Final","Application"][S.obDemoStepN-1]}</p>
+            </div>
+            <div class="tr">
+              <p class="label" style="text-align:right">RÉPONSES</p>
+              <p class="script" id="ob-nav-count" style="font-size:40px;color:var(--v4);line-height:1">${Math.min(S.obDemoStepN+1,3)}</p>
+              <p style="color:var(--mt2);font-size:11px">/ 3</p>
+            </div>
+          </div>
+          <div style="background:var(--gray2);border-radius:99px;height:5px;overflow:hidden;margin-bottom:14px">
+            <div id="ob-nav-prog" style="width:${(S.obDemoStepN/9)*100}%;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--v4),var(--mg));transition:width .5s"></div>
+          </div>
+          <div class="f g8">
+            <button class="btn btn-ghost" style="flex:1;border-radius:11px" ${S.obDemoStepN<=1?"disabled":""} onclick="obNavStep(-1)">← Préc.</button>
+            <button class="btn btn-primary" style="flex:2;padding:13px;border-radius:11px" onclick="obNavStep(1)">
+              ${S.obDemoStepN>=9?"🏁 Terminer":"Suivant →"}
+            </button>
+          </div>
+        </div>`;
+      break;
+    case "ob-resp-demo":
+      zone.innerHTML=`
+        <div class="card mt12" style="padding:18px">
+          <div class="f g6 mb14">
+            ${["🎛️ Ctrl","💬 Réponses","☁️ Cloud"].map((t,i)=>`<div style="flex:1;padding:8px 4px;border-radius:10px;text-align:center;font-size:11px;font-weight:700;background:${i===1?"var(--white)":"var(--gray1)"};border:1.5px solid ${i===1?"var(--v4)":"var(--bdr)"};color:${i===1?"var(--v4)":"var(--mt)"};box-shadow:${i===1?"0 2px 10px rgba(74,44,138,.12)":"none"}">${t}</div>`).join("")}
+          </div>
+          ${[{n:"Marie",t:"Je suis le sarment, il me faut demeurer…"},{n:"Jean",t:"Sans Lui, mes efforts sont vains."},{n:"Samuel",t:"La vigne, c'est la source de tout."}].map((r,i)=>`
+            <div style="background:var(--off);border:1.5px solid var(--bdr);border-radius:12px;padding:10px 13px;margin-bottom:8px;animation:slideR .3s ease ${i*.1}s both">
+              <p style="font-size:11px;color:var(--mg);font-weight:800;margin-bottom:3px">${r.n}</p>
+              <p style="font-size:13px;color:var(--tx);line-height:1.6">${r.t}</p>
+            </div>`).join("")}
+        </div>`;
+      break;
+  }
+}
+
+function obCheckJoin(){
+  const show=S.obDemoName.length>1&&S.obDemoCode.length>=3;
+  const el=document.getElementById("ob-join-check");
+  if(el)el.style.display=show?"block":"none";
+}
+
+function obSendAnswer(){
+  if(!S.obDemoAnswer)return;
+  S.obDemoSent=true;
+  buildObSteps();
+  const zone=document.getElementById("ob-content");
+  buildObContent("ob-answer-demo",zone);
+  document.getElementById("ob-cta").textContent="Parfait ! →";
+}
+
+function obCreateSession(){
+  S.obDemoSessionCreated=true;
+  buildObSteps();
+  const zone=document.getElementById("ob-content");
+  buildObContent("ob-create-demo",zone);
+}
+
+function obNavStep(d){
+  S.obDemoStepN=Math.max(1,Math.min(9,S.obDemoStepN+d));
+  const NAMES=["Contexte","Lecture","Personnages","Mot Clé","Ce que Dieu te dit","Phrase","Verset","Message Final","Application"];
+  const ICONS=["🌍","📖","👤","🔑","✨","💬","📜","🕊️","🌱"];
+  const el=document.getElementById("ob-nav-step");
+  const prog=document.getElementById("ob-nav-prog");
+  const cnt=document.getElementById("ob-nav-count");
+  if(el)el.textContent=ICONS[S.obDemoStepN-1]+" "+NAMES[S.obDemoStepN-1];
+  if(prog)prog.style.width=`${(S.obDemoStepN/9)*100}%`;
+  if(cnt)cnt.textContent=Math.min(S.obDemoStepN+1,3);
+  // update prev button
+  const zone=document.getElementById("ob-content");
+  buildObContent("ob-nav-demo",zone);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUPABASE
+// ══════════════════════════════════════════════════════
+async function sbSel(t,q=""){
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}?${q}`,{headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`,"Accept":"application/json"}});
+  if(!r.ok)throw new Error(await r.text());return r.json();
+}
+async function sbIns(t,d){
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}`,{method:"POST",headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`,"Content-Type":"application/json","Prefer":"return=representation"},body:JSON.stringify(d)});
+  if(!r.ok)throw new Error(await r.text());return r.json();
+}
+async function sbUpd(t,d,m){
+  const q=Object.entries(m).map(([k,v])=>`${k}=eq.${encodeURIComponent(v)}`).join("&");
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}?${q}`,{method:"PATCH",headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`,"Content-Type":"application/json","Prefer":"return=representation"},body:JSON.stringify(d)});
+  if(!r.ok)throw new Error(await r.text());return r.json();
+}
+
+// ══════════════════════════════════════════════════════
+//  BIBLE
+// ══════════════════════════════════════════════════════
+async function fetchBible(ver,ref){
+  try{
+    const id=ver==="KJV"?"kjv":"lsg";
+    const r=await fetch(`https://bible-api.com/${encodeURIComponent(ref)}?translation=${id}`);
+    if(!r.ok)throw 0;const d=await r.json();if(d.error)throw 0;
+    return{ref:d.reference,ver,text:d.text.trim()};
+  }catch{return FB[ver]||FB.LSG;}
+}
+function renderVerses(text,el){
+  el.innerHTML="";
+  text.split("\n").filter(l=>l.trim()).forEach(line=>{
+    const m=line.match(/^\[?(\d+)\]?\s*(.*)/);
+    el.innerHTML+=m?`<div class="vblock"><div class="vnum">v.${m[1]}</div><div class="vtext">${m[2]}</div></div>`
+      :`<div class="vtext" style="margin-bottom:8px">${line}</div>`;
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  LOCAL DB
+// ══════════════════════════════════════════════════════
+const LDB={sessions:{}};
+function genCode(){return Math.random().toString(36).substring(2,7).toUpperCase();}
+
+// ══════════════════════════════════════════════════════
+//  JOIN
+// ══════════════════════════════════════════════════════
+function joinErr(m){const e=document.getElementById("join-err");e.textContent=m;e.style.display=m?"block":"none";}
+async function doJoin(){
+  const name=document.getElementById("join-name").value.trim();
+  const code=document.getElementById("join-code").value.trim().toUpperCase();
+  if(!name)return joinErr("Entre ton prénom.");
+  if(code.length<4)return joinErr("Code invalide.");
+  const btn=document.getElementById("join-btn");btn.disabled=true;btn.textContent="⟳ Connexion…";
+  try{
+    if(IS_CONFIGURED){
+      const rows=await sbSel("sessions",`code=eq.${code}&limit=1`);
+      if(!rows.length){btn.disabled=false;btn.textContent="Entrer dans la session ✨";return joinErr("Session introuvable.");}
+      const sess=rows[0];
+      if(sess.status==="ended"){btn.disabled=false;btn.textContent="Entrer dans la session ✨";return joinErr("Session terminée.");}
+      const[p]=await sbIns("participants",{session_id:sess.id,name});
+      S.myName=name;S.myCode=code;S.sessionId=sess.id;S.participantId=p.id;S.session=sess;
+    }else{
+      const sess=LDB.sessions[code];
+      if(!sess){btn.disabled=false;btn.textContent="Entrer dans la session ✨";return joinErr("Session introuvable.");}
+      if(!sess.participants)sess.participants={};
+      sess.participants[name]={name};
+      S.myName=name;S.myCode=code;S.sessionId=code;S.session=sess;
+    }
+    btn.disabled=false;btn.textContent="Entrer dans la session ✨";
+    document.getElementById("waiting-name").textContent=`Bienvenue, ${name} 👋`;
+    document.getElementById("waiting-code").textContent=code;
+    showScreen("waiting");
+  }catch(e){btn.disabled=false;btn.textContent="Entrer dans la session ✨";joinErr("Erreur : "+e.message);}
+}
+
+// ══════════════════════════════════════════════════════
+//  CREATE
+// ══════════════════════════════════════════════════════
+let selVer="LSG";
+function selectVersion(v){
+  selVer=v;
+  ["LSG","KJV"].forEach(id=>{
+    const b=document.getElementById("ver-"+id),on=id===v;
+    b.style.background=on?"var(--v4l)":"";b.style.color=on?"var(--v4)":"";
+    b.style.borderColor=on?"rgba(74,44,138,.2)":"";b.className="btn btn-sm "+(on?"":"btn-ghost");b.style.borderRadius="10px";
+  });
+}
+async function previewPassage(){
+  const ref=document.getElementById("create-ref").value.trim();
+  const btn=document.getElementById("preview-btn");btn.textContent="⟳";btn.disabled=true;
+  const data=await fetchBible(selVer,ref);
+  btn.textContent="🔍";btn.disabled=false;S.biblePassageData=data;
+  document.getElementById("preview-ref").textContent="📖 "+data.ref;
+  document.getElementById("preview-ver").textContent=data.ver;
+  renderVerses(data.text,document.getElementById("preview-text"));
+  document.getElementById("passage-preview").style.display="block";
+}
+async function doCreate(){
+  const ref=document.getElementById("create-ref").value.trim()||"Jean 15:1-5";
+  const timer=parseInt(document.getElementById("create-timer").value)||180;
+  const btn=document.getElementById("create-btn");btn.disabled=true;btn.textContent="⟳ Création…";
+  if(!S.biblePassageData)S.biblePassageData=await fetchBible(selVer,ref);
+  const pd=S.biblePassageData,code=genCode();
+  try{
+    if(IS_CONFIGURED){
+      const[row]=await sbIns("sessions",{code,passage_reference:pd.ref,passage_text:pd.text,bible_version:selVer,language:selVer==="KJV"?"en":"fr",current_step:1,status:"waiting",timer_seconds:timer});
+      S.sessionId=row.id;
+    }else{
+      LDB.sessions[code]={id:code,code,passage_reference:pd.ref,passage_text:pd.text,bible_version:selVer,language:selVer==="KJV"?"en":"fr",current_step:1,status:"waiting",timer_seconds:timer,participants:{},responses:[]};
+      S.sessionId=code;
+    }
+    S.myCode=code;btn.disabled=false;btn.textContent="Créer la session ✨";showScreen("med");
+  }catch(e){btn.disabled=false;btn.textContent="Créer la session ✨";alert("Erreur : "+e.message);}
+}
+
+// ══════════════════════════════════════════════════════
+//  POLLING
+// ══════════════════════════════════════════════════════
+function startPolling(){stopPolling();pollNow();S.pollIv=setInterval(pollNow,2000);}
+function stopPolling(){if(S.pollIv){clearInterval(S.pollIv);S.pollIv=null;}}
+async function pollNow(){
+  try{
+    if(IS_CONFIGURED&&S.sessionId){
+      const[sessions,participants,responses]=await Promise.all([
+        sbSel("sessions",`id=eq.${S.sessionId}&limit=1`),
+        sbSel("participants",`session_id=eq.${S.sessionId}&order=joined_at.asc`),
+        sbSel("responses",`session_id=eq.${S.sessionId}&order=created_at.asc`),
+      ]);
+      if(sessions.length)S.session=sessions[0];
+      S.participants=participants||[];S.responses=responses||[];
+    }else if(!IS_CONFIGURED&&S.myCode){
+      const sess=LDB.sessions[S.myCode];
+      if(sess){S.session=sess;S.participants=Object.values(sess.participants||{});S.responses=sess.responses||[];}
+    }
+    if(S.screen==="waiting")updateWaiting();
+    if(S.screen==="step")updateStep();
+    if(S.screen==="med")renderMed();
+    if(S.screen==="projection")renderProjection();
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
+//  WAITING
+// ══════════════════════════════════════════════════════
+function updateWaiting(){
+  document.getElementById("waiting-count").textContent=`👥 ${S.participants.length} participant${S.participants.length!==1?"s":""}`;
+  if(S.session?.status==="active"){stopPolling();initStep();showScreen("step");}
+}
+
+// ══════════════════════════════════════════════════════
+//  STEP
+// ══════════════════════════════════════════════════════
+let curStepN=1;
+function initStep(){
+  const sess=S.session;curStepN=sess?.current_step||1;
+  renderStep(curStepN);startTimer(sess?.timer_seconds||180);startPolling();
+}
+function renderStep(n){
+  const step=STEPS[Math.min(n-1,STEPS.length-1)],sess=S.session;
+  document.getElementById("step-name").textContent=S.myName;
+  document.getElementById("step-version").textContent=sess?.bible_version||"LSG";
+  const dotsEl=document.getElementById("step-dots");
+  dotsEl.innerHTML=STEPS.map((_,i)=>`<div class="dot ${i<n-1?"done":i===n-1?"active":""}"></div>`).join("");
+  document.getElementById("step-prog").style.width=`${(n/STEPS.length)*100}%`;
+  document.getElementById("step-count-label").textContent=`${n} / ${STEPS.length}`;
+  document.getElementById("step-num-label").textContent=`Étape ${n}`;
+  document.getElementById("step-icon").textContent=step.icon;
+  document.getElementById("step-title").textContent=step.title;
+  document.getElementById("step-instruction").textContent=step.instr;
+  const pw=document.getElementById("step-passage");
+  if(n<=2&&sess?.passage_text){
+    pw.style.display="block";
+    document.getElementById("step-passage-ref").textContent="📖 "+(sess.passage_reference||"");
+    document.getElementById("step-passage-ver").textContent=sess.bible_version||"";
+    renderVerses(sess.passage_text,document.getElementById("step-passage-text"));
+  }else pw.style.display="none";
+  document.getElementById("step-sent").style.display="none";
+  document.getElementById("step-answer-wrap").style.display="block";
+  const wi=document.getElementById("step-answer-word"),ti=document.getElementById("step-answer-text");
+  wi.value="";ti.value="";
+  if(step.isWord){wi.style.display="block";ti.style.display="none";wi.placeholder=step.ph;}
+  else{wi.style.display="none";ti.style.display="block";ti.placeholder=step.ph;}
+  document.getElementById("step-send-btn").disabled=false;
+  document.getElementById("step-send-btn").textContent="Envoyer ma réponse ✨";
+}
+function updateStep(){
+  const sess=S.session;if(!sess)return;
+  if(sess.status==="ended"){stopTimer();stopPolling();showScreen("end");document.getElementById("end-name").textContent=`Merci, ${S.myName} !`;return;}
+  if(sess.current_step!==curStepN){curStepN=sess.current_step;renderStep(curStepN);startTimer(sess.timer_seconds||180);}
+}
+async function sendResponse(){
+  const step=STEPS[Math.min(curStepN-1,STEPS.length-1)];
+  const wi=document.getElementById("step-answer-word"),ti=document.getElementById("step-answer-text");
+  const content=step.isWord?wi.value.trim():ti.value.trim();
+  if(!content)return;
+  const btn=document.getElementById("step-send-btn");btn.disabled=true;btn.textContent="⟳";
+  try{
+    if(IS_CONFIGURED&&S.sessionId)await sbIns("responses",{session_id:S.sessionId,participant_id:S.participantId,participant_name:S.myName,step_number:step.n,step_key:step.key,content});
+    else if(S.myCode){const sess=LDB.sessions[S.myCode];if(sess){if(!sess.responses)sess.responses=[];sess.responses.push({participant_name:S.myName,step_number:step.n,step_key:step.key,content});}}
+    document.getElementById("step-answer-wrap").style.display="none";
+    document.getElementById("step-sent").style.display="block";
+    document.getElementById("step-sent-text").textContent=`« ${content} »`;
+    document.querySelector("#step-sent .check-circle").textContent="✅";
+  }catch(e){btn.disabled=false;btn.textContent="Envoyer ma réponse ✨";}
+}
+
+// ══════════════════════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════════════════════
+function startTimer(sec){
+  stopTimer();S.timerSec=sec;S.timerTotal=sec;
+  updateTimer("timer-circle","timer-text",sec,sec);
+  S.timerIv=setInterval(()=>{
+    S.timerSec=Math.max(0,S.timerSec-1);
+    updateTimer("timer-circle","timer-text",S.timerSec,S.timerTotal);
+    if(S.screen==="projection")updateTimer("proj-timer-circle","proj-timer-text",S.timerSec,S.timerTotal);
+  },1000);
+}
+function stopTimer(){if(S.timerIv){clearInterval(S.timerIv);S.timerIv=null;}}
+function updateTimer(cId,tId,sec,total){
+  const c=document.getElementById(cId),t=document.getElementById(tId);if(!c||!t)return;
+  const C=188.5,ratio=total>0?Math.max(0,sec/total):1;
+  const color=sec<30?"#f4511e":sec<60?"#f59e0b":"#4a2c8a";
+  c.setAttribute("stroke-dasharray",`${ratio*C} ${C}`);c.setAttribute("stroke",color);
+  t.textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")}`;
+  t.style.color=color;
+}
+
+// ══════════════════════════════════════════════════════
+//  MEDIATEUR
+// ══════════════════════════════════════════════════════
+function medTab(t){
+  S.medCurrentTab=t;
+  ["ctrl","bible","resp","cloud"].forEach(id=>{
+    document.getElementById("med-tab-"+id).style.display=id===t?"":"none";
+    document.querySelector(`[data-tab="${id}"]`).classList.toggle("active",id===t);
+  });
+  if(t==="bible")renderBibleTab();
+  if(t==="cloud")renderCloud("cloud-canvas","cloud-stats");
+}
+function renderMed(){
+  const sess=S.session;if(!sess)return;
+  document.getElementById("med-code").textContent=sess.code||S.myCode;
+  document.getElementById("med-rt").style.display=IS_CONFIGURED?"flex":"none";
+  const sb=document.getElementById("med-status-badge");
+  sb.textContent=sess.status==="active"?"🟢 En cours":sess.status==="ended"?"⚫ Terminée":"🟡 Attente";
+  sb.className="badge "+(sess.status==="active"?"badge-green":sess.status==="ended"?"badge-muted":"badge-orange");
+  const si=Math.min((sess.current_step||1)-1,STEPS.length-1),step=STEPS[si];
+  document.getElementById("med-step-title").textContent=step.icon+" "+step.title;
+  document.getElementById("med-step-instr").textContent=step.instr;
+  document.getElementById("med-prog").style.width=`${(step.n/STEPS.length)*100}%`;
+  const cr=S.responses.filter(r=>r.step_number===sess.current_step);
+  document.getElementById("med-resp-count").textContent=cr.length;
+  document.getElementById("med-resp-total").textContent="/ "+S.participants.length;
+  document.getElementById("med-start-btn").style.display=sess.status==="waiting"?"flex":"none";
+  document.getElementById("med-nav-btns").style.display=sess.status==="active"?"flex":"none";
+  document.getElementById("med-ended-label").style.display=sess.status==="ended"?"block":"none";
+  document.getElementById("med-prev").disabled=(sess.current_step||1)<=1;
+  document.getElementById("med-next").textContent=(sess.current_step||1)>=STEPS.length?"🏁 Terminer":"Suivant →";
+  const sl=document.getElementById("med-steps-list");
+  sl.innerHTML=STEPS.map((st,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;
+      background:${i===si?"var(--v4l)":"transparent"};border:1.5px solid ${i===si?"rgba(74,44,138,.2)":"transparent"}">
+      <span style="font-size:13px">${st.icon}</span>
+      <span style="font-size:13px;font-weight:${i===si?800:400};color:${i<si?"var(--mt2)":"var(--tx)"};flex:1">${st.title}</span>
+      ${i<si?'<span style="color:var(--mg);font-size:12px">✓</span>':''}
+      ${i===si?'<span style="color:var(--v4);font-size:10px;font-weight:800">◀ En cours</span>':''}
+    </div>`).join("");
+  document.getElementById("med-ptcp-count").textContent=S.participants.length;
+  const pp=document.getElementById("med-participants");
+  if(!S.participants.length)pp.innerHTML='<p style="color:var(--mt);font-size:13px" class="pulse">En attente…</p>';
+  else pp.innerHTML=S.participants.map(p=>{
+    const ans=cr.some(r=>r.participant_name===p.name);
+    return`<div class="badge ${ans?"badge-green":"badge-muted"}" style="font-size:13px">${ans?"✓":"·"} ${p.name}</div>`;
+  }).join("");
+  document.getElementById("med-resp-step-label").textContent=step.title;
+  document.getElementById("med-resp-cur").textContent=cr.length;
+  document.getElementById("med-resp-tot2").textContent=S.participants.length;
+  const rl=document.getElementById("med-resp-list");
+  if(!cr.length)rl.innerHTML='<div class="card tc" style="padding:40px"><p style="color:var(--mt);font-size:14px" class="pulse">En attente…</p></div>';
+  else rl.innerHTML=cr.map(r=>`<div class="resp-card"><p style="font-size:11px;color:var(--mg);font-weight:800;margin-bottom:5px">${r.participant_name||"—"}</p><p style="font-size:14px;line-height:1.78;color:var(--tx)">${r.content}</p></div>`).join("");
+  if(S.medCurrentTab==="cloud")renderCloud("cloud-canvas","cloud-stats");
+}
+async function startSession(){await updSess({status:"active",current_step:1});}
+async function changeStep(d){
+  const n=(S.session?.current_step||1)+d;
+  if(n>STEPS.length)await updSess({status:"ended"});
+  else if(n>=1)await updSess({current_step:n});
+}
+async function updSess(patch){
+  if(IS_CONFIGURED&&S.sessionId)await sbUpd("sessions",patch,{id:S.sessionId});
+  else if(S.myCode)Object.assign(LDB.sessions[S.myCode],patch);
+  await pollNow();
+}
+
+// BIBLE TAB
+let bVer="LSG";
+function bibleSelectVer(v){
+  bVer=v;
+  ["LSG","KJV"].forEach(id=>{
+    const b=document.getElementById("bible-ver-"+id),on=id===v;
+    b.style.background=on?"var(--v4l)":"";b.style.color=on?"var(--v4)":"";b.style.borderColor=on?"rgba(74,44,138,.2)":"";
+  });
+}
+async function bibleSearch(){
+  const ref=document.getElementById("bible-search-inp").value.trim()||"Jean 15:1-5";
+  document.getElementById("bible-text-display").innerHTML='<p style="color:var(--mt);font-size:13px" class="pulse">Chargement…</p>';
+  const data=await fetchBible(bVer,ref);S.biblePassageData=data;
+  document.getElementById("bible-ref-label").textContent="📖 "+data.ref;
+  document.getElementById("bible-ver-label").textContent=data.ver;
+  renderVerses(data.text,document.getElementById("bible-text-display"));
+}
+async function bibleApply(){
+  const data=S.biblePassageData;if(!data)return alert("Effectue d'abord une recherche.");
+  await updSess({passage_reference:data.ref,passage_text:data.text,bible_version:bVer});
+  alert("✅ Passage mis à jour !");
+}
+async function renderBibleTab(){
+  const sess=S.session;if(!sess)return;
+  document.getElementById("bible-search-inp").value=sess.passage_reference||"Jean 15:1-5";
+  const data=await fetchBible(sess.bible_version||"LSG",sess.passage_reference||"Jean 15:1-5");
+  S.biblePassageData=data;
+  document.getElementById("bible-ref-label").textContent="📖 "+data.ref;
+  document.getElementById("bible-ver-label").textContent=data.ver;
+  renderVerses(data.text,document.getElementById("bible-text-display"));
+}
+
+// WORD CLOUD
+const CP=[["#f59e0b","#f4511e","#ff6d00"],["#f48fb1","#c2185b","#880e4f"],["#ce93d8","#9c27b0","#6a1b9a"],["#93c5fd","#3b82f6","#1d4ed8"]];
+function cColor(w,i){const h=[...w].reduce((a,c)=>a+c.charCodeAt(0),0);return CP[h%CP.length][i%3];}
+function compFreq(words){const m={};words.forEach(w=>{const k=w.trim().toLowerCase();if(k)m[k]=(m[k]||0)+1;});return Object.entries(m).map(([k,n])=>({key:k,display:words.find(w=>w.trim().toLowerCase()===k)||k,count:n})).sort((a,b)=>b.count-a.count);}
+function placeCloud(freq,W,H){
+  const cx=W/2,cy=H/2,placed=[],boxes=[],maxC=freq[0]?.count||1;
+  freq.forEach((e,ei)=>{
+    const fs=Math.round(13+(e.count/maxC)*44);
+    const tw=e.display.length*fs*.6,th=fs*1.3;
+    const rot=e.count===maxC?0:(Math.random()>.7?(Math.random()>.5?90:-90):0);
+    let px=cx,py=cy,found=false;
+    for(let r=0;r<Math.min(W,H)*.46;r+=2.5){
+      const steps=Math.max(8,Math.round(2*Math.PI*Math.max(r,1)/13));
+      for(let s=0;s<steps;s++){
+        const a=(s/steps)*2*Math.PI+r*.18;px=cx+r*Math.cos(a);py=cy+r*Math.sin(a)*.72;
+        const bw=rot?th:tw,bh=rot?tw:th;
+        if(px-bw/2<4||px+bw/2>W-4||py-bh/2<4||py+bh/2>H-4)continue;
+        if(boxes.every(b=>{const p=5;return px+bw/2+p<b.x-b.w/2||px-bw/2-p>b.x+b.w/2||py+bh/2+p<b.y-b.h/2||py-bh/2-p>b.y+b.h/2;})){found=true;break;}
+      }
+      if(found)break;
+    }
+    if(found){boxes.push({x:px,y:py,w:rot?th:tw,h:rot?tw:th});placed.push({...e,x:px,y:py,fs,rot,color:cColor(e.key,ei)});}
+  });
+  return placed;
+}
+function renderCloud(canvasId,statsId){
+  const words=S.responses.filter(r=>r.step_key==="mot_cle").map(r=>r.content);
+  const freq=compFreq(words);
+  const canvas=document.getElementById(canvasId);if(!canvas)return;
+  const W=canvas.offsetWidth||300,H=parseInt(canvas.style.height)||200;
+  canvas.style.position="relative";
+  if(!freq.length){canvas.innerHTML='<p style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;font-style:italic;color:var(--mt2);white-space:nowrap">En attente des mots clés…</p>';}
+  else{const placed=placeCloud(freq,W,H);canvas.innerHTML=placed.map((p,i)=>`<div class="cloud-word" style="left:${p.x}px;top:${p.y}px;font-size:${p.fs}px;color:${p.color};--rot:${p.rot}deg;transform:translate(-50%,-50%) rotate(${p.rot}deg);z-index:${p.count*10};animation-delay:${i*50}ms">${p.display}${p.count>1?`<sup style="font-size:.42em;margin-left:2px;opacity:.7">×${p.count}</sup>`:""}</div>`).join("");}
+  if(!statsId)return;
+  const st=document.getElementById(statsId);if(!st)return;
+  if(!freq.length){st.innerHTML='<p style="color:var(--mt2);font-size:13px;text-align:center;padding:16px">Les mots clés apparaîtront à l\'étape 4…</p>';return;}
+  st.innerHTML=freq.slice(0,10).map((e,i)=>{
+    const pct=Math.round((e.count/(freq[0]?.count||1))*100),c=cColor(e.key,i);
+    return`<div style="display:flex;align-items:center;gap:10px"><span style="min-width:110px;font-size:14px;font-weight:800;color:${c}">${e.display}</span><div style="flex:1;background:var(--gray2);border-radius:99px;height:7px;overflow:hidden"><div style="width:${pct}%;height:100%;border-radius:99px;background:${c};transition:width .6s"></div></div><span style="font-family:'Dancing Script',cursive;font-size:18px;color:${c};min-width:20px;text-align:right">${e.count}</span></div>`;
+  }).join("");
+}
+
+// ══════════════════════════════════════════════════════
+//  PROJECTION
+// ══════════════════════════════════════════════════════
+function renderProjection(){
+  const sess=S.session;if(!sess)return;
+  document.getElementById("proj-code").textContent=sess.code||S.myCode;
+  document.getElementById("proj-passage").textContent=`📖 ${sess.passage_reference||""} · ${sess.bible_version||""}`;
+  document.getElementById("proj-rt-dot").style.display=IS_CONFIGURED?"block":"none";
+  const si=Math.min((sess.current_step||1)-1,STEPS.length-1),step=STEPS[si];
+  document.getElementById("proj-step-icon").textContent=step.icon;
+  document.getElementById("proj-step-title").textContent=step.title;
+  document.getElementById("proj-step-instr").textContent=step.instr;
+  document.getElementById("proj-prog").style.width=`${(step.n/STEPS.length)*100}%`;
+  document.getElementById("proj-step-num").textContent=`${step.n} / ${STEPS.length} étapes`;
+  const cr=S.responses.filter(r=>r.step_number===sess.current_step);
+  document.getElementById("proj-resp-count").textContent=cr.length;
+  updateTimer("proj-timer-circle","proj-timer-text",S.timerSec,S.timerTotal);
+  const words=S.responses.filter(r=>r.step_key==="mot_cle").map(r=>r.content);
+  document.getElementById("proj-cloud-wrap").style.display=words.length?"block":"none";
+  if(words.length)renderCloud("proj-cloud-canvas",null);
+  const rl=document.getElementById("proj-resp-list");
+  if(sess.status==="ended"){rl.innerHTML='<div class="tc" style="padding:40px"><p style="font-size:36px">🌟</p><p class="script" style="font-size:28px;margin-top:10px;color:var(--tx)">La Parole a parlé</p></div>';return;}
+  if(!cr.length){rl.innerHTML='<div class="tc" style="padding:32px"><p style="color:var(--mt);font-size:14px" class="pulse">En attente des réponses…</p></div>';return;}
+  rl.innerHTML=cr.map(r=>`<div class="resp-card"><p style="font-size:11px;color:var(--mg);font-weight:800;margin-bottom:5px">${r.participant_name||"—"}</p><p style="font-size:15px;line-height:1.82;color:var(--tx)">${r.content}</p></div>`).join("");
+}
+
+// ══════════════════════════════════════════════════════
+//  SETUP BANNERS
+// ══════════════════════════════════════════════════════
+function initSetup(){
+  if(!IS_CONFIGURED){
+    const html=`<div class="setup-banner mb16"><p style="color:var(--or);font-weight:800;font-size:13px;margin-bottom:6px">⚙️ Config Supabase requise</p><p style="color:var(--mt);font-size:12px;line-height:1.8">1. Exécute <strong style="color:var(--tx)">hagah-supabase.sql</strong> dans Supabase → SQL Editor<br>2. Remplace <strong style="color:var(--tx)">SUPABASE_URL</strong> et <strong style="color:var(--tx)">SUPABASE_ANON_KEY</strong> en haut du fichier<br><span style="color:var(--mt2)">Sans config : mode local (1 appareil)</span></p></div>`;
+    ["join-setup-banner","create-setup-banner"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=html;});
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded",()=>{
+  initSetup();
+  // Show onboarding on first launch, home otherwise
+  const done=localStorage.getItem("hagah_ob_done");
+  if(done){showScreen("home");}
+  else{showScreen("ob-role");}
+});
+window.addEventListener("popstate",()=>{
+  if(["ob-role","ob-steps","ob-done"].includes(S.screen))return;
+  showScreen("home");
+});
+</script>
+</body>
+</html>
